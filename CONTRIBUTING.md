@@ -10,6 +10,6 @@ Thanks for helping build FOLTIO.
 
 Pull requests should explain the user problem, the chosen behavior, verification performed, and any migration or compatibility impact. Small, reviewable changes are preferred.
 
-By contributing, you agree that your contribution is licensed under the repository's GNU AGPL v3.0 license and that you have the right to submit it.
+By contributing, you agree that your contribution is licensed under the repository's MIT License and that you have the right to submit it.
 
 Please follow the [Code of Conduct](CODE_OF_CONDUCT.md). Security reports belong in the private channel described in [SECURITY.md](SECURITY.md), not a public issue.

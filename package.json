@@ -20,7 +20,7 @@
   "bugs": {
     "url": "https://github.com/foltio/foltio/issues"
   },
-  "license": "AGPL-3.0-only",
+  "license": "MIT",
   "type": "module",
   "engines": {
     "node": ">=22.6"

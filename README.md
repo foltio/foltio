@@ -18,7 +18,7 @@
 
   <p>
     <a href="https://github.com/foltio/foltio/actions/workflows/ci.yml"><img alt="CI status" src="https://github.com/foltio/foltio/actions/workflows/ci.yml/badge.svg" /></a>
-    <a href="LICENSE"><img alt="AGPL-3.0 license" src="https://img.shields.io/badge/license-AGPL--3.0-7da33d" /></a>
+    <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-7da33d" /></a>
     <a href="https://modelcontextprotocol.io"><img alt="Model Context Protocol" src="https://img.shields.io/badge/MCP-compatible-7da33d" /></a>
     <a href="https://github.com/foltio/foltio"><img alt="Self-hosted with Docker" src="https://img.shields.io/badge/self--hosted-Docker-2496ED" /></a>
   </p>
@@ -144,4 +144,4 @@ Yes. [folt.io](https://folt.io) is the hosted FOLTIO experience. This repository
 
 Ideas, bug reports, and filmmaking workflows are welcome in [GitHub Issues](https://github.com/foltio/foltio/issues). Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request, and report vulnerabilities privately as described in [SECURITY.md](SECURITY.md).
 
-FOLTIO is licensed under the [GNU Affero General Public License v3.0](LICENSE). The FOLTIO name and logo are trademarks; see [TRADEMARKS.md](TRADEMARKS.md).
+FOLTIO is licensed under the [MIT License](LICENSE). The FOLTIO name and logo are trademarks; see [TRADEMARKS.md](TRADEMARKS.md).
