@@ -1,6 +1,6 @@
-# FOLTIO
+# FOLTIO — AI film studio
 
-> FOLTIO is a browser-based agentic AI video editor and multitrack filmmaking workspace at https://folt.io/.
+> FOLTIO is an AI film studio with a browser-based multitrack video editor, generative media tools and an agent-native filmmaking workflow. Use the managed product at https://folt.io/ or self-host the open-source core from https://github.com/foltio/foltio.
 
 FOLTIO helps creators move from raw footage or an idea to a finished video in one workspace: plan the story, create storyboards, generate and compare shots with sound, upload existing media, edit picture and sound on a real timeline, add dialogue, music, captions and effects, then render the final cut.
 
@@ -9,6 +9,7 @@ FOLTIO helps creators move from raw footage or an idea to a finished video in on
 - The built-in filmmaking and editing agent is called Hermes.
 - Hermes can work across story development, the production board, generated media and the edit timeline.
 - FOLTIO can generate images, video, voice and music and can also edit user-uploaded footage.
+- The open-source edition includes the browser editor, media pipeline, rendering engine and a Model Context Protocol (MCP) server for compatible AI agents.
 - Projects can be kept private or shared publicly. A public project can be watched and cloned into another user's workspace.
 - New accounts receive 500 credits and do not need a card.
 - AI generation and Hermes agent work use credits. The exact generation price is shown before it runs.
@@ -18,9 +19,12 @@ FOLTIO helps creators move from raw footage or an idea to a finished video in on
 ## Official pages
 
 - Product: https://folt.io/
+- Open-source repository: https://github.com/foltio/foltio
+- Self-hosting guide: https://github.com/foltio/foltio/blob/main/docs/SELF_HOSTING.md
+- Architecture: https://github.com/foltio/foltio/blob/main/docs/ARCHITECTURE.md
 - Terms: https://folt.io/terms
 - Privacy: https://folt.io/privacy
 - Public films: https://folt.io/sitemap.xml
 - Contact: hello@folt.io
 
-Information here describes the product as of October 8, 2026.
+Information here describes the product as of October 10, 2026.

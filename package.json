@@ -3,6 +3,24 @@
   "version": "0.1.0",
   "private": true,
   "description": "Open-source film studio with a browser editor and an MCP interface for AI agents.",
+  "keywords": [
+    "ai-video",
+    "video-editor",
+    "filmmaking",
+    "mcp",
+    "model-context-protocol",
+    "generative-ai",
+    "self-hosted"
+  ],
+  "homepage": "https://folt.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/foltio/foltio.git"
+  },
+  "bugs": {
+    "url": "https://github.com/foltio/foltio/issues"
+  },
+  "license": "AGPL-3.0-only",
   "type": "module",
   "engines": {
     "node": ">=22.6"
