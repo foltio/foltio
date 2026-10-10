@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { api } from "./api";
 import { Check, Copy, KeyRound, Loader2 } from "lucide-react";
 
-type Me = { email: string; budget: { monthlyCapCredits: number; spentThisMonthCredits: number; remainingCredits: number; autoApproveBelowCredits: number }; keys: { id: string; name: string; prefix: string; kind?: string; created_at: string; last_used_at: string | null }[]; mcpUrl: string; quick_auto?: boolean };
+type Me = { email: string; budget: { monthlyCapCredits: number; spentThisMonthCredits: number; remainingCredits: number; autoApproveBelowCredits: number }; keys: { id: string; name: string; prefix: string; kind?: string; created_at: string; last_used_at: string | null; expires_at?: string | null }[]; mcpUrl: string; quick_auto?: boolean };
 
 // A block of code or config with a copy button that confirms.
 export function Code({ label, text }: { label?: string; text: string }) {
@@ -67,7 +67,7 @@ export function Settings() {
   const make = async () => {
     setMaking(true);
     try {
-      setNewKey(await api("/api/keys", { name: "Claude Code" }));
+      setNewKey(await api("/api/keys", { name: "Agent connection" }));
       load();
     } catch (e: any) {
       setErr(e.message);
@@ -75,20 +75,21 @@ export function Settings() {
       setMaking(false);
     }
   };
-  const skillCmd = (agent: "claude" | "codex") => `mkdir -p ~/.${agent}/skills/studio && curl -fsS ${location.origin}/skill.md -o ~/.${agent}/skills/studio/SKILL.md`;
-  const codex = (key: string) => `[mcp_servers.studio]\nurl = "${me.mcpUrl}"\nhttp_headers = { Authorization = "Bearer ${key}" }`;
-  const json = (key: string) => JSON.stringify({ mcpServers: { studio: { url: me.mcpUrl, headers: { Authorization: `Bearer ${key}` } } } }, null, 2);
+  const skillCmd = (agent: "claude" | "codex") => `mkdir -p ~/.${agent}/skills/foltio && curl -fsS ${location.origin}/skill.md -o ~/.${agent}/skills/foltio/SKILL.md`;
+  const codex = (key: string) => `[mcp_servers.foltio]\nurl = "${me.mcpUrl}"\nhttp_headers = { Authorization = "Bearer ${key}" }`;
+  const json = (key: string) => JSON.stringify({ mcpServers: { foltio: { url: me.mcpUrl, headers: { Authorization: `Bearer ${key}` } } } }, null, 2);
+  const apiStart = (key: string) => `curl -fsS ${location.origin}/api/agent/start \\\n  -H 'Authorization: Bearer ${key}'`;
   const used = Math.min(100, (100 * me.budget.spentThisMonthCredits) / Math.max(1, me.budget.monthlyCapCredits));
   const dirty = cap !== String(me.budget.monthlyCapCredits) || auto !== String(me.budget.autoApproveBelowCredits);
   return (
     <div className="pg">
       <header className="pg-head">
         <h1>Connect</h1>
-        <p>Use Studio from your own agent. Claude Code, Codex and Cursor get every Studio tool over MCP: projects, uploads, generation, timeline edits, frame views and renders.</p>
+        <p>Use FOLTIO from any agent. MCP and the REST API expose the same projects, uploads, generation, timeline edits, frame views and renders.</p>
       </header>
       {err && <p className="error">{err}</p>}
 
-      <Section title="MCP server" text="Create a key, then paste the command for your agent. The key is shown once.">
+      <Section title="MCP server" text={<>Create a key and paste one config below, or let an agent guide you through a secure browser connection from the <a href="/docs/agent-start.md">agent start guide</a>. Keys are shown once.</>}>
         <Code text={me.mcpUrl} />
         {!newKey ? (
           <button className="btn primary" onClick={make} disabled={making}>
@@ -102,6 +103,7 @@ export function Settings() {
             <Code label="Claude Code" text={newKey.command} />
             <Code label="Codex · ~/.codex/config.toml" text={codex(newKey.key)} />
             <Code label="Cursor and others · mcp.json" text={json(newKey.key)} />
+            <Code label="REST · verify the connection" text={apiStart(newKey.key)} />
           </div>
         )}
       </Section>
@@ -114,7 +116,7 @@ export function Settings() {
                 <tr key={k.id}>
                   <td>
                     <span className="tbl-main">{k.kind === "hosted" ? "Built-in agent" : k.name}</span>
-                    <span className="tbl-sub">{k.kind === "hosted" ? "Renews on its own" : `Created ${when(k.created_at)}`}</span>
+                    <span className="tbl-sub">{k.kind === "hosted" ? "Renews on its own" : k.kind === "agent" ? `Browser-approved · expires ${when(k.expires_at || k.created_at)}` : `Created ${when(k.created_at)}`}</span>
                   </td>
                   <td>
                     <code className="muted">{k.prefix}…</code>
@@ -136,7 +138,16 @@ export function Settings() {
         </Section>
       )}
 
-      <Section title="Studio skill" text="Optional. Loads the same editing and generation playbooks into your agent up front.">
+      <Section title="Agent API" text="For scripts, coding agents and services that prefer ordinary HTTPS. It uses the same key, operations and schemas as MCP.">
+        <div className="pg-actions">
+          <a className="btn" href="/docs/agent-start.md">Connection guide</a>
+          <a className="btn ghost" href="/api/openapi.json">OpenAPI</a>
+          <a className="btn ghost" href="/api/agent/tools">Tool schemas</a>
+        </div>
+        <Code label="Every operation" text={`POST ${location.origin}/api/agent/tools/<tool_name>`} />
+      </Section>
+
+      <Section title="FOLTIO skill" text="Optional. Loads the same editing and generation playbooks into your agent up front.">
         <Code label="Claude Code" text={skillCmd("claude")} />
         <Code label="Codex" text={skillCmd("codex")} />
       </Section>

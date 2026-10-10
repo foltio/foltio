@@ -104,7 +104,7 @@ export const TOOLS = [
   {
     name: "project_create",
     title: "Create project",
-    description: "Create a cloud video project. Canvas: an aspect preset (9:16 → 1080x1920, 16:9 → 1920x1080, 1:1 → 1080x1080, 4:5 → 1080x1350) or any width×height (144–4096 px, e.g. 3840x2160 for 4K, 1440x2560 for 2K vertical). fps 24/25/30/48/50/60 (or 23.976/29.97/59.94); default 30. Change later with the set_canvas op. Returns project_id.",
+    description: "Create a cloud video project. New projects are public by default and can be made private in the editor. Canvas: an aspect preset (9:16 → 1080x1920, 16:9 → 1920x1080, 1:1 → 1080x1080, 4:5 → 1080x1350) or any width×height (144–4096 px, e.g. 3840x2160 for 4K, 1440x2560 for 2K vertical). fps 24/25/30/48/50/60 (or 23.976/29.97/59.94); default 30. Change later with the set_canvas op. Returns project_id, editor and public watch links.",
     inputSchema: S({ name: str("Project name."), aspect: { type: "string", enum: ["9:16", "16:9", "1:1", "4:5"] }, width: int("Canvas width in px (with height; overrides aspect)."), height: int("Canvas height in px."), fps: { type: "number", enum: [23.976, 24, 25, 29.97, 30, 48, 50, 59.94, 60] } }, ["name"]),
     annotations: { readOnlyHint: false, destructiveHint: false },
   },
@@ -746,12 +746,12 @@ export const HANDLERS = {
 
   async project_list(account, a) {
     const rows = await listProjects(account, a.query);
-    return ok(`${rows.length} projects.`, { projects: rows.map((p) => ({ id: p.id, name: p.name, revision: p.revision, assets: p.assets, updated: p.updated_at, editor: editorUrl(p.id) })) });
+    return ok(`${rows.length} projects.`, { projects: rows.map((p) => ({ id: p.id, name: p.name, revision: p.revision, assets: p.assets, updated: p.updated_at, visibility: p.public ? "public" : "private", editor: editorUrl(p.id), ...(p.public ? { watch: `${config.publicOrigin}/v/${p.id}` } : {}) })) });
   },
 
   async project_create(account, a) {
     const p = await createProject(account, a);
-    return ok(`Created ${p.id} (${p.canvas}). Editor: ${editorUrl(p.id)}`, { ...p, editor: editorUrl(p.id), next: "media_add to bring footage in, or gen_quote to generate." });
+    return ok(`Created ${p.id} (${p.canvas}). Editor: ${editorUrl(p.id)}`, { ...p, project_id: p.id, visibility: p.public ? "public" : "private", editor: editorUrl(p.id), ...(p.public ? { watch: `${config.publicOrigin}/v/${p.id}` } : {}), next: "Share the editor link, then use media_add to bring footage in or gen_quote to generate." });
   },
 
   async project_get(account, a) {
@@ -1171,7 +1171,7 @@ export const HANDLERS = {
 
   async share(account, a) {
     const p = await getProject(account, a.project_id);
-    const data = { editor: editorUrl(p.id) };
+    const data = { editor: editorUrl(p.id), visibility: p.is_public ? "public" : "private", ...(p.is_public ? { watch: `${config.publicOrigin}/v/${p.id}` } : {}) };
     const r = a.render_id
       ? await one("select * from studio.assets where id=$1 and project_id=$2", [a.render_id, p.id])
       : await one("select * from studio.assets where project_id=$1 and 'render' = any(roles) and deleted_at is null order by (origin->>'quality')='final' desc, created_at desc limit 1", [p.id]);
@@ -1180,7 +1180,7 @@ export const HANDLERS = {
       data.render = { quality: r.origin.quality, revision: r.origin.revision };
       data.download_url = await presignGet(r.storage_key, 24 * 3600, `${p.name}.mp4`);
     }
-    return ok(`Editor: ${data.editor}${data.download_url ? `\nDownload (24 h): ${data.download_url}` : ""}`, data);
+    return ok(`Editor: ${data.editor}${data.watch ? `\nPublic watch page: ${data.watch}` : "\nThis project is private."}${data.download_url ? `\nDownload (24 h): ${data.download_url}` : ""}`, data);
   },
 
   async item_delete(account, a) {

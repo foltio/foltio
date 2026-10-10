@@ -30,7 +30,7 @@ export async function createProject(account, { name, aspect = "16:9", fps = 30, 
   const c = validateCanvas({ aspect, width, height, fps });
   const doc = newDoc(c);
   const p = await one(
-    "insert into studio.projects(id, account_id, name, doc) values ($1,$2,$3,$4) returning id, name, revision, created_at",
+    "insert into studio.projects(id, account_id, name, doc) values ($1,$2,$3,$4) returning id, name, revision, is_public as public, created_at",
     [id("prj"), account.id, String(name || "Untitled").slice(0, 120), doc],
   );
   await q("insert into studio.commits(project_id, revision, actor, label, ops, summary, doc) values ($1,0,'system','created','[]','{}',$2)", [p.id, doc]);

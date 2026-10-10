@@ -2,7 +2,7 @@
 // server instructions (always loaded), the studio_guide tool (playbooks by topic), MCP prompts,
 // and /skill.md for Claude Code. Keep each topic short enough to read in one tool result.
 
-export const INSTRUCTIONS = `Studio: cloud video editor + AI generation. You do the editing; the user watches live in the browser editor (https://folt.io/p/<project_id>) — give them that link as soon as a project exists. Before your first edit, call studio_guide (free): it has playbooks for dialogue cuts, short vertical videos, teasers, generated stories and ads, plus op examples.
+export const INSTRUCTIONS = `FOLTIO: cloud video editor + AI generation. You do the editing; the user watches live in the browser editor (https://folt.io/p/<project_id>) — give them that link as soon as a project exists. Before your first edit, call studio_guide (free): it has playbooks for dialogue cuts, short vertical videos, teasers, generated stories and ads, plus op examples.
 Loop: studio_status → project_create → media_add (upload ticket → run the curl → finalize) → job_wait → media_inspect (transcript first) → gen_quote → gen_run → job_wait (paid; only what you can't get from footage) → timeline_edit (mode "preview", then "apply" with base_revision; one batch = one undo step) → timeline_view (frames) + timeline_check (numbers) → fix (≤3 passes) → render quality "final" → job_wait → timeline_check {render_id} → share.
 Rules: never cut inside a word (use word timings from media_inspect); ids come from tool results, never invent them; quote before spending and tell the user totals over a few dollars; you are the reviewer — look at frames of every cut before calling anything done; report what you checked and what is left.`;
 
@@ -338,13 +338,13 @@ export function guideText(topic = "overview") {
 export function skillMarkdown(origin) {
   const body = ["workflow", "editing", "short_vertical", "generation", "consistency", "review"].map((k) => T[k].replace(/^# /, "## ")).join("\n\n");
   return `---
-name: studio
-description: Make, edit and generate videos with the Studio MCP server (${origin}) — cloud projects, uploads from local disk, AI generation (video, images, voice, music, SFX), typed multi-track timeline edits, frame previews, QC and renders. Use whenever the user wants a video made, cut, captioned, generated or polished.
+name: foltio
+description: Make, edit and generate videos with FOLTIO (${origin}) — cloud projects, uploads from local disk, AI generation (video, images, voice, music, SFX), typed multi-track timeline edits, frame previews, QC and renders. Use whenever the user wants a video made, cut, captioned, generated or polished.
 ---
 
-# Studio: agentic video editing
+# FOLTIO: agentic video editing
 
-Studio is a cloud video editor exposed as MCP tools (mcp__studio__*). You are the editor and the reviewer; the user watches at ${origin}/p/<project_id>. More topics (picture, sound, text, teaser, ops, troubleshooting) are available any time through the studio_guide tool.
+FOLTIO is a cloud video editor exposed as MCP tools (mcp__foltio__*) and the equivalent REST API. You are the editor and the reviewer; the user watches at ${origin}/p/<project_id>. More topics (picture, sound, text, teaser, ops, troubleshooting) are available any time through the studio_guide tool.
 
 ${body}
 `;

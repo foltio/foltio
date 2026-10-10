@@ -71,9 +71,9 @@ After it:
 
 ## Next, in order
 
-1. **OAuth sign-in for chat apps** (Claude.ai, ChatGPT, desktop).
-   - It replaces pasting API keys, and is the biggest reach gap.
-   - Comes with an upload page / QR link for agents without a shell.
+1. **Native OAuth discovery for MCP clients** (Claude.ai, ChatGPT, desktop).
+   - Browser-approved device connections now remove copy-pasted keys for HTTPS agents and use one credential for REST and MCP.
+   - Standards-based MCP OAuth is the remaining zero-configuration path for clients that can launch sign-in themselves.
 2. **Plans as objects.**
    - Bibles (character, location, style) with anchor assets.
    - A storyboard of shots with prompts, quoted and run as a batch.

@@ -14,6 +14,7 @@ import { startProject } from "./Projects";
 import { ViewPage } from "./Community";
 import { FeedbackAdminPage, FeedbackModal, FeedbackPage, openFeedback } from "./Feedback";
 import { AnalyticsPage } from "./Analytics";
+import { AgentConnect } from "./AgentConnect";
 import { FoltioBrand } from "./Brand";
 import { BarChart3, Clapperboard, Plug, LogOut, Wallet, MessageSquareText } from "lucide-react";
 import "@fontsource-variable/geist";
@@ -175,6 +176,9 @@ function App() {
       .catch((e: ApiError) => setAccess({ ok: false, message: e.message }));
   }, [session?.access_token]);
   if (path === "/terms" || path === "/privacy") return <Legal page={path === "/terms" ? "terms" : "privacy"} />;
+  const agentConnection = path.match(/^\/c\/([\w-]+)$/);
+  if (agentConnection && (session === undefined || runtime === "loading")) return <div className="center muted">Opening secure connection…</div>;
+  if (agentConnection) return <AgentConnect code={agentConnection[1]} signedIn={!!session} />;
   // The public page is useful immediately; session discovery can happen in the background.
   if (session === undefined && runtime === "loading") return <div className="center muted">Starting FOLTIO…</div>;
   if (session === undefined) return <GuestEditor />;

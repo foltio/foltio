@@ -1,11 +1,11 @@
 ---
-name: studio
-description: Make, edit and generate videos with the Studio MCP server (https://folt.io) — cloud projects, uploads from local disk, AI generation (video, images, voice, music, SFX), typed multi-track timeline edits, frame previews, QC and renders. Use whenever the user wants a video made, cut, captioned, generated or polished.
+name: foltio
+description: Make, edit and generate videos with FOLTIO (https://folt.io) — cloud projects, uploads from local disk, AI generation (video, images, voice, music, SFX), typed multi-track timeline edits, frame previews, QC and renders. Use whenever the user wants a video made, cut, captioned, generated or polished.
 ---
 
-# Studio: agentic video editing
+# FOLTIO: agentic video editing
 
-Studio is a cloud video editor exposed as MCP tools (mcp__studio__*). You are the editor and the reviewer; the user watches at https://folt.io/p/<project_id>. More topics (picture, sound, text, teaser, ops, troubleshooting) are available any time through the studio_guide tool.
+FOLTIO is a cloud video editor exposed as MCP tools (mcp__foltio__*) and the equivalent REST API. You are the editor and the reviewer; the user watches at https://folt.io/p/<project_id>. More topics (picture, sound, text, teaser, ops, troubleshooting) are available any time through the studio_guide tool.
 
 ## Workflow
 1. studio_status once (budget, recent projects). project_create with the right canvas: 9:16 for TikTok/Reels/Shorts, 16:9 for YouTube, 1:1 or 4:5 for feeds, or any width×height. Send the user the editor link right away — they see every change live and can edit too.

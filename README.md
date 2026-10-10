@@ -72,14 +72,17 @@ For backups, networking, configuration, and updates, read the [self-hosting guid
 
 ### Connect an AI agent
 
-Open **Settings** in FOLTIO and create an API key. The app gives you the exact MCP configuration for your installation. The endpoint is:
+Give your agent the [connection guide](https://folt.io/docs/agent-start.md). It creates a short browser link; you sign in and choose **Connect agent**, and the agent continues automatically. No password, cookie, or token needs to pass through chat.
+
+The approved credential works with both the native MCP server and the REST API:
 
 ```text
-http://localhost:3000/mcp
-Authorization: Bearer sk_studio_…
+MCP   http://localhost:3000/mcp
+REST  http://localhost:3000/api/agent/tools/<tool_name>
+Authorization: Bearer sk_foltio_…
 ```
 
-The server publishes its editing guide at [`http://localhost:3000/skill.md`](http://localhost:3000/skill.md). MCP tools expose projects, media, generation, timeline operations, jobs, and renders using structured inputs.
+For a local install, you can also open **Connect** and create a key directly. FOLTIO publishes its [OpenAPI schema](http://localhost:3000/api/openapi.json), [tool catalogue](http://localhost:3000/api/agent/tools), and [editing skill](http://localhost:3000/skill.md). REST and MCP are generated from the same tool definitions, so they expose the same projects, media, generation, timeline, review, job, and render operations.
 
 ### Enable generative media
 
@@ -130,7 +133,7 @@ Yes. Uploading media, editing projects, creating captions and titles, and render
 
 ### Can an AI coding agent edit video through FOLTIO?
 
-Yes. Any compatible Model Context Protocol client can connect to FOLTIO's MCP server. The agent can inspect the project and make versioned edits while the filmmaker reviews the same timeline in the browser.
+Yes. Any compatible Model Context Protocol client can connect to FOLTIO's MCP server; other agents can use the equivalent HTTPS API. The agent can inspect the project and make versioned edits while the filmmaker reviews the same timeline in the browser.
 
 ### Are projects public or private?
 

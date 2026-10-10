@@ -1,5 +1,5 @@
 // Two ways in:
-//  - Agents (MCP): a personal API key, `Authorization: Bearer sk_studio_…` (hash stored, never the key).
+//  - Agents (MCP/REST): a personal API key, `Authorization: Bearer sk_foltio_…` (hash stored, never the key).
 //  - Browser editor: the user's Supabase session (Google or Discord). Anyone may sign up; with
 //    STUDIO_INVITE_ONLY=1 only the allowlist (STUDIO_ADMIN_EMAILS) gets in.
 import { randomBytes } from "node:crypto";
@@ -49,7 +49,7 @@ export async function localAccount() {
 }
 
 export async function createApiKey(accountId, name = "default") {
-  const secret = "sk_studio_" + randomBytes(24).toString("base64url");
+  const secret = "sk_foltio_" + randomBytes(24).toString("base64url");
   await q("insert into studio.api_keys(account_id, name, prefix, hash) values ($1,$2,$3,$4)", [
     accountId,
     name,
@@ -64,6 +64,7 @@ function bearer(req) {
   const m = h.match(/^Bearer\s+(.+)$/i);
   return m ? m[1].trim() : null;
 }
+const isApiKey = (token) => /^sk_(?:foltio|studio)_/.test(token || ""); // studio keeps existing keys valid
 
 export async function accountFromApiKey(req) {
   return accountFromKey(bearer(req));
@@ -71,7 +72,7 @@ export async function accountFromApiKey(req) {
 
 // A personal key, or the short-lived key a built-in agent's sandbox acts with (kind 'hosted').
 export async function accountFromKey(token, { kinds } = {}) {
-  if (!token || !token.startsWith("sk_studio_")) return null;
+  if (!isApiKey(token)) return null;
   const row = await one(
     `select k.id as key_id, k.kind as key_kind, a.* from studio.api_keys k join studio.accounts a on a.id = k.account_id
      where k.hash = $1 and k.revoked_at is null and (k.expires_at is null or k.expires_at > now())`,
@@ -86,7 +87,7 @@ const sessionCache = new Map(); // token hash -> {account, until}
 export async function accountFromSession(req) {
   if (config.localMode) return localAccount();
   const token = bearer(req);
-  if (!token || token.startsWith("sk_studio_")) return null;
+  if (!token || isApiKey(token)) return null;
   return accountFromSessionToken(token);
 }
 

@@ -29,6 +29,8 @@ import { listDrafts, createDraft, discardDraft, mediaPreviews } from "./drafts.m
 import { id } from "./ids.mjs";
 import { redditSignUp } from "./ads.mjs";
 import { allowAnalyticsIngest, analyticsDashboard, ingestAnalytics, trackServerEvent } from "./analytics.mjs";
+import { agentOpenApi, restToolResult } from "./agent-api.mjs";
+import { decideAgentConnection, pollAgentConnection, publicAgentConnection, startAgentConnection } from "./agent-connections.mjs";
 
 // Server instructions, the guide and the prompts live in mcp/guide.mjs.
 
@@ -65,13 +67,27 @@ const requireAdmin = (account) => {
   if (!isAdmin(account)) throw new HttpError(403, "Admin access required.", "admin_only");
 };
 const cleanText = (value, max) => String(value || "").trim().replace(/\r\n/g, "\n").slice(0, max);
+const connectionStarts = new Map();
+function allowConnectionStart(req) {
+  // nginx appends the actual peer to X-Forwarded-For. Use that value instead of
+  // the first (client-controlled) entry so spoofed headers cannot evade this limit.
+  const forwarded = String(req.headers["x-forwarded-for"] || "").split(",").map((part) => part.trim()).filter(Boolean);
+  const peer = forwarded.at(-1) || req.socket.remoteAddress || "unknown";
+  const now = Date.now(), since = now - 60 * 60_000;
+  const recent = (connectionStarts.get(peer) || []).filter((at) => at > since);
+  if (recent.length >= 12) return false;
+  recent.push(now);
+  connectionStarts.set(peer, recent);
+  if (connectionStarts.size > 1000) connectionStarts.clear();
+  return true;
+}
 
 async function handleMcp(req, res) {
   if (req.method === "GET" || req.method === "DELETE") return send(res, 405, { error: "Use POST (stateless Streamable HTTP)." }, { Allow: "POST" });
   const account = await accountFromApiKey(req);
-  if (!account) return send(res, 401, { error: "Missing or invalid API key. Send Authorization: Bearer sk_studio_… (create one in the editor settings)." });
+  if (!account) return send(res, 401, { error: `Missing or invalid credential. Follow ${config.publicOrigin}/docs/agent-start.md, or create a key in Connect.` });
   const body = await readJson(req);
-  const server = new Server({ name: "studio", version: "0.2.0", title: "FOLTIO — film studio" }, { capabilities: { tools: {}, prompts: {} }, instructions: INSTRUCTIONS.replaceAll("https://folt.io", config.publicOrigin) });
+  const server = new Server({ name: "foltio", version: "1.0.0", title: "FOLTIO — AI film studio" }, { capabilities: { tools: {}, prompts: {} }, instructions: INSTRUCTIONS.replaceAll("https://folt.io", config.publicOrigin) });
   server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: TOOLS }));
   server.setRequestHandler(ListPromptsRequestSchema, async () => ({ prompts: PROMPTS.map(({ name, title, description, arguments: args }) => ({ name, title, description, arguments: args })) }));
   server.setRequestHandler(GetPromptRequestSchema, async (request) => {
@@ -153,11 +169,47 @@ const routes = [
   ["GET", /^\/sitemap\.xml$/, async (req, res) => send(res, 200, renderSitemap(config.publicOrigin, await listPublicIndex()), { "Content-Type": "application/xml; charset=utf-8", "Cache-Control": "public, max-age=900" })],
   ["GET", /^\/health$/, async (req, res) => send(res, 200, { ok: true, service: "studio", time: new Date().toISOString() })],
   ["GET", /^\/skill\.md$/, async (req, res) => send(res, 200, skillMarkdown(config.publicOrigin), { "Content-Type": "text/markdown; charset=utf-8", "Cache-Control": "public, max-age=300" })],
+  ["GET", /^\/api\/openapi\.json$/, async (req, res) => send(res, 200, agentOpenApi(config.publicOrigin, TOOLS), { "Cache-Control": "public, max-age=300" })],
+  ["GET", /^\/api\/agent\/tools$/, async (req, res) => send(res, 200, { tools: TOOLS, mcp_url: `${config.publicOrigin}/mcp`, openapi_url: `${config.publicOrigin}/api/openapi.json` }, { "Cache-Control": "public, max-age=300" })],
+  ["POST", /^\/api\/agent\/connections$/, async (req, res) => {
+    if (!allowConnectionStart(req)) throw new HttpError(429, "Too many connection requests. Try again later.", "connection_rate_limit");
+    const body = await readJson(req, 16 * 1024);
+    send(res, 201, await startAgentConnection(body.client_name));
+  }],
+  ["POST", /^\/api\/agent\/connections\/token$/, async (req, res) => {
+    const connection = await pollAgentConnection((await readJson(req, 16 * 1024)).device_code);
+    send(res, connection.status === "pending" ? 202 : 200, connection);
+  }],
+  ["GET", /^\/api\/agent\/connections\/([\w-]+)$/, async (req, res, account, m) => send(res, 200, await publicAgentConnection(m[1]))],
+  ["POST", /^\/api\/agent\/connections\/([\w-]+)\/(approve|deny)$/, async (req, res, account, m) => send(res, 200, await decideAgentConnection(account, m[1], m[2]))],
+  ["GET", /^\/api\/agent\/start$/, async (req, res, account) => {
+    const status = restToolResult(await callTool(account, "studio_status", {}, { actor: "agent" }));
+    send(res, 200, {
+      ...status,
+      connected_as: account.email,
+      links: {
+        editor: config.publicOrigin,
+        documentation: `${config.publicOrigin}/docs/agent-start.md`,
+        documentation_index: `${config.publicOrigin}/llms.txt`,
+        openapi: `${config.publicOrigin}/api/openapi.json`,
+        mcp: `${config.publicOrigin}/mcp`,
+        tools: `${config.publicOrigin}/api/agent/tools`,
+      },
+    });
+  }],
+  ["POST", /^\/api\/agent\/tools\/([\w-]+)$/, async (req, res, account, m) => {
+    const t0 = Date.now();
+    const result = await callTool(account, m[1], await readJson(req), { actor: "agent" });
+    void trackServerEvent("api_tool_called", { accountId: account.id, source: "agent", properties: { action: m[1], status: "succeeded", duration_ms: Date.now() - t0 } }).catch(() => {});
+    send(res, 200, restToolResult(result));
+  }],
   ["GET", /^\/api\/config$/, async (req, res) => send(res, 200, {
     localMode: config.localMode,
     supabaseUrl: config.localMode ? null : config.supabase.url,
     supabaseAnonKey: config.localMode ? null : config.supabase.anonKey,
     mcpUrl: `${config.publicOrigin}/mcp`,
+    agentDocsUrl: `${config.publicOrigin}/docs/agent-start.md`,
+    agentApiUrl: `${config.publicOrigin}/api/agent`,
     redditPixel: config.localMode ? null : config.reddit.pixel,
   })],
   ["POST", /^\/api\/analytics\/events$/, async (req, res) => {
@@ -302,8 +354,15 @@ const routes = [
   ["POST", /^\/api\/billing\/portal$/, async (req, res, account) => send(res, 200, await portal(account))],
   ["POST", /^\/api\/keys$/, async (req, res, account) => {
     const b = await readJson(req);
-    const secret = await createApiKey(account.id, String(b.name || "Claude Code").slice(0, 60));
-    send(res, 201, { key: secret, command: `claude mcp add --transport http studio ${config.publicOrigin}/mcp --header "Authorization: Bearer ${secret}"` });
+    const secret = await createApiKey(account.id, String(b.name || "Agent connection").slice(0, 60));
+    send(res, 201, {
+      key: secret,
+      command: `claude mcp add --transport http foltio ${config.publicOrigin}/mcp --header "Authorization: Bearer ${secret}"`,
+      mcp_url: `${config.publicOrigin}/mcp`,
+      api_url: `${config.publicOrigin}/api/agent`,
+      start_url: `${config.publicOrigin}/api/agent/start`,
+      docs_url: `${config.publicOrigin}/docs/agent-start.md`,
+    });
   }],
   ["POST", /^\/api\/keys\/([\w-]+)\/revoke$/, async (req, res, account, m) => {
     await q("update studio.api_keys set revoked_at=now() where id=$1 and account_id=$2", [m[1], account.id]);
@@ -450,7 +509,9 @@ const server = http.createServer(async (req, res) => {
     for (const [method, re, fn] of routes) {
       const m = url.pathname.match(re);
       if (!m || req.method !== method) continue;
-      const open = url.pathname.startsWith("/api/public/") || url.pathname.startsWith("/v/") || ["/terms", "/privacy", "/sitemap.xml", "/health", "/api/config", "/api/models", "/api/analytics/events", "/skill.md"].includes(url.pathname);
+      const openAgent = ["/api/openapi.json", "/api/agent/tools", "/api/agent/connections", "/api/agent/connections/token"].includes(url.pathname)
+        || (req.method === "GET" && /^\/api\/agent\/connections\/[\w-]+$/.test(url.pathname));
+      const open = openAgent || url.pathname.startsWith("/api/public/") || url.pathname.startsWith("/v/") || ["/terms", "/privacy", "/sitemap.xml", "/health", "/api/config", "/api/models", "/api/analytics/events", "/skill.md"].includes(url.pathname);
       const account = open ? null : await requireAccount(req);
       return await fn(req, res, account, m, url);
     }

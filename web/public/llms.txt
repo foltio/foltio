@@ -19,6 +19,12 @@ FOLTIO helps creators move from raw footage or an idea to a finished video in on
 ## Official pages
 
 - Product: https://folt.io/
+- Connect an agent: https://folt.io/docs/agent-start.md
+- Agent workflows: https://folt.io/docs/agent-workflows.md
+- Agent REST API: https://folt.io/docs/agent-api.md
+- OpenAPI 3.1 schema: https://folt.io/api/openapi.json
+- MCP endpoint: https://folt.io/mcp
+- Agent editing skill: https://folt.io/skill.md
 - Open-source repository: https://github.com/foltio/foltio
 - Self-hosting guide: https://github.com/foltio/foltio/blob/main/docs/SELF_HOSTING.md
 - Architecture: https://github.com/foltio/foltio/blob/main/docs/ARCHITECTURE.md
