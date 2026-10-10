@@ -1,0 +1,9 @@
+.git
+.github
+.context
+node_modules
+web/dist
+.env*
+*.log
+docs
+test

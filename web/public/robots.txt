@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /p/
+Disallow: /approve/
+Disallow: /settings
+Disallow: /billing
+Disallow: /feedback
+
+Sitemap: https://folt.io/sitemap.xml

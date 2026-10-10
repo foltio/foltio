@@ -1,0 +1,97 @@
+/* The board on the stage (StoryView.tsx): ingredients, then the clips in order. docs/DESIGN.md. */
+.sv { position: relative; height: 100%; overflow: auto; padding: 18px 22px 28px; display: flex; flex-direction: column; gap: 18px; background: var(--canvas); scrollbar-width: thin; }
+.sv-loading { display: grid; place-items: center; }
+.sv-head { display: flex; align-items: flex-end; gap: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--hairline); }
+.sv-title { display: grid; gap: 3px; min-width: 0; }
+.sv-title strong { font-size: 19px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; }
+.sv-meta { font-size: 12px; color: var(--ink-subtle); }
+.sv-progress { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-muted); white-space: nowrap; }
+.sv-progress-bar { width: 96px; height: 4px; border-radius: 4px; background: var(--surface-3); overflow: hidden; }
+.sv-progress-bar i { display: block; height: 100%; background: var(--ink); transition: width 300ms var(--ease-out); }
+.sv-logline { margin: -6px 0 0; max-width: 72ch; color: var(--ink-muted); font-size: 13.5px; line-height: 1.55; }
+.sv-section { display: grid; gap: 8px; min-width: 0; }
+
+/* ingredients */
+.sv-ingredients { display: flex; flex-wrap: wrap; gap: 8px; }
+.sv-ing { display: inline-flex; align-items: center; gap: 8px; max-width: 220px; height: 44px; padding: 0 12px 0 4px; border: 1px dashed var(--hairline-strong); background: var(--surface-1); color: var(--ink); border-radius: var(--r-lg); font: inherit; font-size: 13px; font-weight: 500; cursor: pointer; transition: background-color 120ms ease, border-color 120ms ease, transform 140ms var(--ease-out); }
+.sv-ing.ready { border-style: solid; border-color: var(--hairline); }
+.sv-ing.on { border-color: var(--ink-muted); background: var(--surface-2); }
+.sv-ing:active { transform: scale(0.98); }
+.sv-ing-pic { width: 36px; height: 36px; flex: none; border-radius: var(--r-sm); overflow: hidden; display: grid; place-items: center; background: var(--surface-3); color: var(--ink-subtle); }
+.sv-ing-pic img { width: 100%; height: 100%; object-fit: cover; }
+.sv-ing-name { min-width: 0; }
+
+/* clips */
+.sv-clips { display: flex; gap: 12px; overflow-x: auto; padding: 2px 2px 10px; scroll-snap-type: x proximity; scrollbar-width: thin; }
+.sv-clip { position: relative; flex: none; width: 236px; scroll-snap-align: start; display: flex; flex-direction: column; background: var(--surface-1); border: 1px solid var(--hairline); border-radius: var(--r-lg); overflow: hidden; transition: border-color 120ms ease; }
+.sv-clip.on { border-color: var(--white); box-shadow: 0 0 0 1px var(--white); }
+.sv-clip.busy { border-color: var(--tally-line); }
+.sv-clip-pic { position: relative; aspect-ratio: 16 / 9; max-height: 120px; background: #000; display: grid; place-items: center; color: var(--ink-faint); cursor: zoom-in; overflow: hidden; }
+.sv-clip-pic img { width: 100%; height: 100%; object-fit: cover; }
+.sv-clip-n { position: absolute; left: 8px; top: 8px; min-width: 22px; height: 22px; padding: 0 6px; display: grid; place-items: center; border-radius: var(--r-sm); background: rgba(10, 10, 11, 0.72); color: var(--ink); font-size: 11.5px; backdrop-filter: blur(4px); }
+.sv-clip-open { position: absolute; right: 8px; bottom: 8px; display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: var(--r-sm); background: rgba(10, 10, 11, 0.72); color: var(--ink); font-size: 11.5px; opacity: 0; transition: opacity 120ms ease; }
+@media (hover: hover) and (pointer: fine) { .sv-clip-pic:hover .sv-clip-open { opacity: 1; } }
+.sv-clip-body { display: grid; gap: 8px; padding: 10px 12px 12px; }
+.sv-clip-row { display: flex; align-items: center; gap: 6px; }
+.sv-clip-title { flex: 1; min-width: 0; height: 28px; padding: 0 6px; margin-left: -6px; border-color: transparent; background: transparent; font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+.sv-clip-secs { flex: none; display: inline-flex; align-items: center; gap: 1px; font-size: 12px; color: var(--ink-subtle); }
+.sv-clip-secs input { width: 38px; height: 24px; padding: 0 4px; text-align: right; border-color: transparent; background: transparent; font-family: var(--mono); font-size: 12px; color: var(--ink-muted); }
+.sv-clip-beat { resize: none; min-height: 60px; padding: 4px 6px; margin: 0 -6px; border-color: transparent; background: transparent; font-size: 12.5px; line-height: 1.5; color: var(--ink-muted); }
+@media (hover: hover) and (pointer: fine) { .sv-clip-title:hover, .sv-clip-secs input:hover, .sv-clip-beat:hover { border-color: var(--hairline-strong); } }
+.sv-clip-who { display: flex; flex-wrap: wrap; gap: 4px; }
+.sv-steps { display: flex; align-items: center; gap: 3px; font-size: 11.5px; color: var(--ink-subtle); padding-top: 2px; border-top: 1px solid var(--hairline); padding-top: 8px; }
+.sv-steps i { width: 14px; height: 3px; border-radius: 2px; background: var(--surface-4); }
+.sv-steps i.done { background: var(--ink-muted); }
+.sv-steps > span:first-of-type { margin-left: 6px; }
+.sv-steps .busy { color: var(--tally); }
+.sv-takes { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: thin; }
+.sv-take { flex: none; display: grid; gap: 3px; justify-items: center; }
+.sv-take-pic { width: 52px; height: 32px; padding: 0; border: 1px solid var(--hairline-strong); border-radius: var(--r-xs); overflow: hidden; background: #000; color: var(--ink-faint); display: grid; place-items: center; cursor: zoom-in; }
+.sv-take.used .sv-take-pic { border-color: var(--white); }
+.sv-take-pic img { width: 100%; height: 100%; object-fit: cover; }
+.sv-take-use { border: 0; background: none; color: var(--ink-subtle); font: inherit; font-size: 11px; cursor: pointer; padding: 0 4px; border-radius: var(--r-xs); }
+.sv-take-use:hover { color: var(--ink); background: var(--surface-3); }
+.sv-take-used { display: inline-flex; align-items: center; gap: 2px; font-size: 11px; color: var(--ok); }
+.sv-clip-del { position: absolute; top: 6px; right: 6px; background: rgba(10, 10, 11, 0.72); color: var(--ink-muted); opacity: 0; transition: opacity 120ms ease; }
+.sv-clip-del.confirm { opacity: 1; color: var(--danger); }
+@media (hover: hover) and (pointer: fine) { .sv-clip:hover .sv-clip-del { opacity: 1; } }
+.sv-add { flex: none; width: 120px; border: 1px dashed var(--hairline-strong); border-radius: var(--r-lg); background: transparent; color: var(--ink-subtle); display: grid; place-content: center; justify-items: center; gap: 6px; font: inherit; font-size: 12.5px; cursor: pointer; transition: color 120ms ease, border-color 120ms ease; }
+.sv-add:hover { color: var(--ink); border-color: var(--ink-faint); }
+.sv-empty { display: grid; justify-items: center; gap: 10px; padding: 40px 20px; text-align: center; color: var(--ink-subtle); border: 1px dashed var(--hairline-strong); border-radius: var(--r-lg); }
+.sv-empty p { margin: 0; max-width: 46ch; color: var(--ink-muted); }
+@media (max-width: 1100px) { .sv-clips { flex-wrap: wrap; overflow: visible; } }
+.sv-clip-row { min-width: 0; }
+.sv-clip-title { width: 0; }
+
+/* the way back to the video: always visible, top right */
+.sv-head { position: sticky; top: 0; z-index: 5; background: var(--canvas); }
+.sv-close { margin-left: 16px; }
+.sv-close { height: 36px; padding: 0 12px 0 10px; font-size: 13.5px; font-weight: 600; gap: 7px; }
+.sv-close kbd { background: rgba(0, 0, 0, 0.08); border-color: rgba(0, 0, 0, 0.15); color: rgba(0, 0, 0, 0.55); }
+
+/* the board as a side tab (like Media): one column, clips as a list, the video stays on the stage */
+.board-col { min-height: 0; display: flex; flex-direction: column; background: var(--surface-1); }
+.board-col .sv { background: var(--surface-1); padding: 14px 14px 24px; gap: 16px; }
+.board-col .sv-head { background: var(--surface-1); flex-wrap: wrap; row-gap: 8px; padding-bottom: 10px; }
+.board-col .sv-head .grow { flex-basis: 100%; height: 0; }
+.board-col .sv-progress { width: 100%; }
+.board-col .sv-close { display: none; }
+.board-col .sv-ingredients { gap: 6px; }
+.board-col .sv-clips { flex-direction: column; overflow: visible; padding: 0; gap: 10px; scroll-snap-type: none; }
+.board-col .sv-clip { width: 100%; display: grid; grid-template-columns: 112px minmax(0, 1fr); }
+.board-col .sv-clip-pic { aspect-ratio: auto; max-height: none; height: 100%; min-height: 112px; }
+.board-col .sv-clip-body { min-width: 0; }
+.board-col .sv-takes { grid-column: 1 / -1; }
+.board-col .sv-add { width: 100%; min-height: 56px; }
+.board-col .sv-title h2, .board-col .sv-title strong, .board-col .sv-title > :first-child { font-size: 16px; line-height: 1.3; letter-spacing: -0.01em; }
+
+/* clips play: hover previews the take silently, click plays it large with sound */
+.sv-clip-pic video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sv-clip-pic.playable { cursor: pointer; }
+.sv-clip-play { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: rgba(10, 10, 11, 0.55); color: #fff; backdrop-filter: blur(4px); pointer-events: none; transition: transform 140ms var(--ease-out); }
+.sv-clip-pic.playable:hover .sv-clip-play { transform: translate(-50%, -50%) scale(1.06); }
+.sv-clip-open { border: 0; font: inherit; cursor: pointer; }
+.board-col .sv-clip-pic { min-height: 150px; }
+.board-col .sv-clip { grid-template-columns: 96px minmax(0, 1fr); }
+.sv-take-pic { position: relative; }
+.ag-lightbox video { max-width: min(92vw, 520px); max-height: 82vh; border-radius: var(--r-lg); background: #000; }

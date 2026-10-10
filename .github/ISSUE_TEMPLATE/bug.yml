@@ -1,0 +1,25 @@
+name: Bug report
+description: Report a reproducible problem in FOLTIO
+body:
+  - type: textarea
+    attributes:
+      label: What happened?
+      description: Include the expected behavior and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Reproduction
+      description: Give the smallest set of steps, and a sample project if it contains no private media.
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Version
+      description: Release tag or commit SHA
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Environment and logs
+      description: OS, browser, Docker/Node version, and redacted logs. Never paste secrets.

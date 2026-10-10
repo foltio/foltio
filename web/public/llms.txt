@@ -1,0 +1,26 @@
+# FOLTIO
+
+> FOLTIO is a browser-based agentic AI video editor and multitrack filmmaking workspace at https://folt.io/.
+
+FOLTIO helps creators move from raw footage or an idea to a finished video in one workspace: plan the story, create storyboards, generate and compare shots with sound, upload existing media, edit picture and sound on a real timeline, add dialogue, music, captions and effects, then render the final cut.
+
+## Key facts
+
+- The built-in filmmaking and editing agent is called Hermes.
+- Hermes can work across story development, the production board, generated media and the edit timeline.
+- FOLTIO can generate images, video, voice and music and can also edit user-uploaded footage.
+- Projects can be kept private or shared publicly. A public project can be watched and cloned into another user's workspace.
+- New accounts receive 500 credits and do not need a card.
+- AI generation and Hermes agent work use credits. The exact generation price is shown before it runs.
+- Editing, uploads and rendering are free.
+- The base rate is 100 credits per US dollar; plans and larger top-ups include bonus credits.
+
+## Official pages
+
+- Product: https://folt.io/
+- Terms: https://folt.io/terms
+- Privacy: https://folt.io/privacy
+- Public films: https://folt.io/sitemap.xml
+- Contact: hello@folt.io
+
+Information here describes the product as of October 8, 2026.
