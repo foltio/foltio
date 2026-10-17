@@ -25,7 +25,7 @@ COPY --from=web-build /app/web/dist ./web/dist
 EXPOSE 8810
 CMD ["node", "server/index.mjs"]
 
-FROM nginx:1.27-alpine AS web
+FROM nginx:1.29-alpine AS web
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=web-build /app/web/dist /usr/share/nginx/html
 EXPOSE 80
